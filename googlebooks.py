@@ -4,7 +4,7 @@ from typing import Dict, Optional, Union
 import requests
 
 
-class GoogleGooksApi:
+class GoogleBooksApi:
     """
     Google Books Api
     
