@@ -25,7 +25,7 @@ class GoogleBooksApi:
         return json.loads(resp.content)
 
     @classmethod
-    def get(cls, volume_ID: str, **kwargs: str) -> dict:
+    def get(cls, volume_ID: str, **optional_parameters: str) -> dict:
         """
         Retrieve a Volume resource based on ID
         volumeId -- ID of volume to retrieve.
@@ -42,10 +42,15 @@ class GoogleBooksApi:
         """
         path: str = "/volumes/" + volume_ID
 
-        return cls._get(path, params=kwargs)
+        if optional_parameters:
+            for optional_parameter in optional_parameters:
+                if optional_parameter not in "partner projection source".split():
+                    raise ValueError(f"Parameter '{optional_parameter}' not valid")
+
+        return cls._get(path, params=optional_parameters)
 
     @classmethod
-    def list_(cls, query: str, **kwargs: str) -> dict:
+    def list_(cls, query: str, **optional_parameters: str) -> dict:
         """
         Perform a book search.
         query -- Full-text search query string.
@@ -108,7 +113,21 @@ class GoogleBooksApi:
         See: https://developers.google.com/books/docs/v1/reference/volumes/list
         """
         path: str = "/volumes"
-        params: Dict[str, str] = {"q": query, **kwargs}
+
+        params: Dict[str, str] = {"q": query}
+
+        if optional_parameters:
+            for optional_parameter in optional_parameters:
+                if (
+                    optional_parameter
+                    not in (
+                        "download filter langRestrict libraryRestrict maxResults "
+                        "orderBy partner printType projection showPreorders source startIndex"
+                    ).split()
+                ):
+                    raise ValueError(f"Parameter '{optional_parameter}' not valid")
+
+            params.update(optional_parameters)
 
         return cls._get(path, params)
 
