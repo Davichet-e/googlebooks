@@ -1,55 +1,58 @@
-import requests
 import json
+from typing import Dict, Optional, Union
 
-class Api(object):
-    """Google Books Api
+import requests
+
+
+class GoogleGooksApi:
+    """
+    Google Books Api
     
     See: https://developers.google.com/books/
     """
-    __BASEURL = 'https://www.googleapis.com/books/v1'
-    def __init__(self ):
-       pass 
 
-    def _get(self, path, params=None):
+    _BASEURL: str = "https://www.googleapis.com/books/v1"
+
+    @classmethod
+    def _get(cls, path: str, params: Optional[dict] = None) -> dict:
         if params is None:
             params = {}
-        resp = requests.get(self.__BASEURL+path, params=params)
-        if resp.status_code == 200:
-            return json.loads(resp.content)
+        resp: requests.Response = requests.get(cls._BASEURL + path, params=params)
 
-        return resp
+        resp.raise_for_status()
 
-    def get(self, volumeId, **kwargs):
-        """Retrieves a Volume resource based on ID
+        return json.loads(resp.content)
 
+    @classmethod
+    def get(cls, volume_ID: str, **kwargs: str) -> dict:
+        """
+        Retrieve a Volume resource based on ID
         volumeId -- ID of volume to retrieve.
-
         Optional Parameters:
-
         partner --  Brand results for partner ID.
         
         projection -- Restrict information returned to a set of selected fields. 
-
                     Acceptable values are:
                     "full" - Includes all volume data.
                     "lite" - Includes a subset of fields in volumeInfo and accessInfo.
         
         source --   String to identify the originator of this request.
-
         See: https://developers.google.com/books/docs/v1/reference/volumes/get
         """
-        path = '/volumes/'+volumeId
-        params = dict()
-        for p in 'partner projection source'.split():
-            if p in kwargs:
-                params[p] = kwargs[p]
+        path: str = "/volumes/" + volume_ID
+        params: Dict[str, str] = {
+            optional_parameter: kwargs[optional_parameter]
+            for optional_parameter in "partner projection source".split()
+            if optional_parameter in kwargs
+        }
 
-        return self._get(path)
-    
-    def list(self, q, **kwargs):
-        """Performs a book search.
+        return cls._get(path, params=params)
 
-        q -- Full-text search query string.
+    @classmethod
+    def list_(cls, query: str, **kwargs: str) -> dict:
+        """
+        Perform a book search.
+        query -- Full-text search query string.
             
             There are special keywords you can specify in the search terms to
             search in particular fields, such as:
@@ -72,62 +75,54 @@ class Api(object):
         Optional Parameters:
 
         download -- Restrict to volumes by download availability. 
-
                     Acceptable values are:
                     "epub" - All volumes with epub.
-
         filter --   Filter search results. 
-
                     Acceptable values are:
                     "ebooks" - All Google eBooks.
                     "free-ebooks" - Google eBook with full volume text viewability.
                     "full" - Public can view entire volume text.
                     "paid-ebooks" - Google eBook with a price.
                     "partial" - Public able to see parts of text.
-
         langRestrict -- Restrict results to books with this language code.
-
         libraryRestrict	-- Restrict search to this user's library. 
-
                     Acceptable values are:
                     "my-library" - Restrict to the user's library, any shelf.
                     "no-restrict" - Do not restrict based on user's library.
-
         maxResults -- Maximum number of results to return. Acceptable values are 0 to 40, inclusive.
-
         orderBy	 -- Sort search results. 
-
                     Acceptable values are:
                     "newest" - Most recently published.
                     "relevance" - Relevance to search terms.
-
         partner	--  Restrict and brand results for partner ID.
-
         printType -- Restrict to books or magazines. 
-
                     Acceptable values are:
                     "all" - All volume content types.
                     "books" - Just books.
                     "magazines" - Just magazines.
-
         projection -- Restrict information returned to a set of selected fields. 
-
                     Acceptable values are:
                     "full" - Includes all volume data.
                     "lite" - Includes a subset of fields in volumeInfo and accessInfo.
         
         showPreorders -- Set to true to show books available for preorder. Defaults to false.
-
         source --  String to identify the originator of this request.
-
-        startIndex -- Index of the first result to return (starts at 0)
+        startIndex -- Index of the first result to return (starts at 0).
 
         See: https://developers.google.com/books/docs/v1/reference/volumes/list
         """
-        path = '/volumes'
-        params = dict(q=q)
-        for p in 'download filter langRestrict libraryRestrict maxResults orderBy partner printType projection showPreorders source startIndex'.split():
-            if p in kwargs:
-                params[p] = kwargs[p]
+        path: str = "/volumes"
+        params: Dict[str, str] = dict(query=query)
+        params.update(
+            {
+                optional_parameter: kwargs[optional_parameter]
+                for optional_parameter in (
+                    "download filter langRestrict libraryRestrict maxResults"
+                    "orderBy partner printType projection showPreorders source startIndex"
+                ).split()
+                if optional_parameter in kwargs
+            }
+        )
 
-        return self._get(path, params)
+        return cls._get(path, params)
+
