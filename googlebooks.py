@@ -21,7 +21,7 @@ class GoogleBooksApi:
 
         resp.raise_for_status()
 
-        return json.loads(resp.content)
+        return json.loads(resp.content.decode("utf-8"))
 
     @classmethod
     def get(cls, volume_ID: str, **kwargs: str) -> dict:
