@@ -17,11 +17,12 @@ class GoogleBooksApi:
     def _get(cls, path: str, params: Optional[dict] = None) -> dict:
         if params is None:
             params = {}
+
         resp: requests.Response = requests.get(cls._BASEURL + path, params=params)
 
         resp.raise_for_status()
 
-        return json.loads(resp.content.decode("utf-8"))
+        return json.loads(resp.content)
 
     @classmethod
     def get(cls, volume_ID: str, **kwargs: str) -> dict:
@@ -40,13 +41,8 @@ class GoogleBooksApi:
         See: https://developers.google.com/books/docs/v1/reference/volumes/get
         """
         path: str = "/volumes/" + volume_ID
-        params: Dict[str, str] = {
-            optional_parameter: kwargs[optional_parameter]
-            for optional_parameter in "partner projection source".split()
-            if optional_parameter in kwargs
-        }
 
-        return cls._get(path, params=params)
+        return cls._get(path, params=kwargs)
 
     @classmethod
     def list_(cls, query: str, **kwargs: str) -> dict:
@@ -112,17 +108,7 @@ class GoogleBooksApi:
         See: https://developers.google.com/books/docs/v1/reference/volumes/list
         """
         path: str = "/volumes"
-        params: Dict[str, str] = dict(query=query)
-        params.update(
-            {
-                optional_parameter: kwargs[optional_parameter]
-                for optional_parameter in (
-                    "download filter langRestrict libraryRestrict maxResults"
-                    "orderBy partner printType projection showPreorders source startIndex"
-                ).split()
-                if optional_parameter in kwargs
-            }
-        )
+        params: Dict[str, str] = {"q": query, **kwargs}
 
         return cls._get(path, params)
 
