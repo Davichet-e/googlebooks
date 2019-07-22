@@ -47,7 +47,7 @@ class GoogleBooksApi:
                 if optional_parameter not in "partner projection source".split():
                     raise ValueError(f"Parameter '{optional_parameter}' not valid")
 
-        return cls._get(path, params=optional_parameters)
+        return cls._get(path, optional_parameters)
 
     @classmethod
     def list_(cls, query: str, **optional_parameters: str) -> dict:
