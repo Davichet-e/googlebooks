@@ -9,9 +9,9 @@ by google. An alternative is the [python google data api][gdata].
 
 
 ```python
-from googlebooks import GoogleBooksApi
+from googlebooks import list_books
 
-GoogleBooksApi.list_('isbn:0596007973')
+list_books('isbn:0596007973')
 ```
 
 Returns the following json response
